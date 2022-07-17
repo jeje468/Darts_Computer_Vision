@@ -18,13 +18,18 @@ while True:
     mask_post_it = cv.inRange(board, (120,60,50), (200,150,100))
     board_contours, contourFound = cvz.findContours(board, mask_post_it, 1000)
 
-    left_center = contourFound[0]['center']
-    right_center = contourFound[3]['center']
-    top_center = contourFound[1]['center'] if contourFound[1]['center'][1] < contourFound[2]['center'][1] else contourFound[2]['center']
-    bottom_center = contourFound[1]['center'] if contourFound[1]['center'][1] > contourFound[2]['center'][1] else contourFound[2]['center']
-    cv.line(board, left_center, right_center, [0, 255, 0], 2)
-    cv.line(board, top_center, bottom_center, [0, 255, 0], 2)
+    cv.imshow('video', board)
+    cv.imshow('mask', mask_post_it)
 
+
+    if len(contourFound) >= 4:
+        left_center = contourFound[0]['center']
+        right_center = contourFound[3]['center']
+        top_center = contourFound[1]['center'] if contourFound[1]['center'][1] < contourFound[2]['center'][1] else contourFound[2]['center']
+        bottom_center = contourFound[1]['center'] if contourFound[1]['center'][1] > contourFound[2]['center'][1] else contourFound[2]['center']
+        cv.line(board, left_center, right_center, [0, 255, 0], 2)
+        cv.line(board, top_center, bottom_center, [0, 255, 0], 2)
+    
     cv.imshow('video', board)
 
     key = cv.waitKey(1)

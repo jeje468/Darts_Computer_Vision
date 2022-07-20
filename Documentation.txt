@@ -1,0 +1,2 @@
+1. Sárga cetli helyett kék.
+2. Színfelismerésnél minimális fényváltozások befolyásolták a maszkot. Szükséges kalibrálni a játék előtt. 

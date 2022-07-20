@@ -1,35 +1,54 @@
+from tkinter import *
 import cv2 as cv
-import numpy as np
-import cvzone as cvz
-from cvzone.ColorModule import ColorFinder
+from PIL import ImageTk, Image
+from pip import main
 
-cam = cv.VideoCapture(0)
-colorfinder = ColorFinder(True)
+from gameplay import start_game
 
-while True:
-    check, board = cam.read()
+def rescaleFrame(frame, scale=0.75):
+    width = int(frame.shape[1] * scale)
+    height = int(frame.shape[0] * scale)
+    dimensions = (width, height)
 
-    mask_red = cv.inRange(board, (0,0,50), (150,100,255))
-    mask_post_it = cv.inRange(board, (120,60,50), (200,150,100))
-    board_contours, contourFound = cvz.findContours(board, mask_post_it, 1000)
+    return cv.resize(frame, dimensions, interpolation=cv.INTER_AREA)
 
-    cv.imshow('video', board)
-    cv.imshow('mask', mask_post_it)
+def set_values():
+    board = cv.imread('Images/calibration.jpg')
+    board = rescaleFrame(board, 0.25)
+    B = dark_B.get()
+    mask_post_it = cv.inRange(board, (dark_B.get(),dark_G.get(),dark_R.get()), (light_B.get(),light_G.get(),light_R.get()))
+
+    cv.imshow('Mask', mask_post_it)
+
+camera = cv.VideoCapture(0)
+result, image = camera.read()
+if result:
+    cv.imwrite('Images/calibration.jpg', image)
+
+master = Tk()
+dark_B = Scale(master, from_=0, to=255, length=400, orient=HORIZONTAL)
+dark_B.set(120)
+dark_B.pack()
+dark_G = Scale(master, from_=0, to=255, length=400, orient=HORIZONTAL)
+dark_G.set(60)
+dark_G.pack()
+dark_R = Scale(master, from_=0, to=255, length=400, orient=HORIZONTAL)
+dark_R.set(50)
+dark_R.pack()
+
+light_B = Scale(master, from_=0, to=255, length=400, orient=HORIZONTAL)
+light_B.set(200)
+light_B.pack()
+light_G = Scale(master, from_=0, to=255, length=400, orient=HORIZONTAL)
+light_G.set(150)
+light_G.pack()
+light_R = Scale(master, from_=0, to=255, length=400, orient=HORIZONTAL)
+light_R.set(100)
+light_R.pack()
+
+Button(master, text='Show', command=set_values).pack()
+Button(master, text='Start game', command=start_game()).pack()
 
 
-    if len(contourFound) >= 4:
-        left_center = contourFound[0]['center']
-        right_center = contourFound[3]['center']
-        top_center = contourFound[1]['center'] if contourFound[1]['center'][1] < contourFound[2]['center'][1] else contourFound[2]['center']
-        bottom_center = contourFound[1]['center'] if contourFound[1]['center'][1] > contourFound[2]['center'][1] else contourFound[2]['center']
-        cv.line(board, left_center, right_center, [0, 255, 0], 2)
-        cv.line(board, top_center, bottom_center, [0, 255, 0], 2)
-    
-    cv.imshow('video', board)
-
-    key = cv.waitKey(1)
-    if key == 27:
-        break
-
-cam.release()
+#mainloop()
 

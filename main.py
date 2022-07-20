@@ -2,6 +2,7 @@ from tkinter import *
 import cv2 as cv
 from PIL import ImageTk, Image
 from pip import main
+from gameplay import *
 
 from gameplay import start_game
 
@@ -19,6 +20,9 @@ def set_values():
     mask_post_it = cv.inRange(board, (dark_B.get(),dark_G.get(),dark_R.get()), (light_B.get(),light_G.get(),light_R.get()))
 
     cv.imshow('Mask', mask_post_it)
+
+def start():
+    start_game(dark_B.get(), dark_G.get(), dark_R.get(), light_B.get(), light_G.get(), light_R.get())
 
 camera = cv.VideoCapture(0)
 result, image = camera.read()
@@ -47,8 +51,8 @@ light_R.set(100)
 light_R.pack()
 
 Button(master, text='Show', command=set_values).pack()
-Button(master, text='Start game', command=start_game()).pack()
+Button(master, text='Start game', command=start).pack()
 
 
-#mainloop()
+mainloop()
 

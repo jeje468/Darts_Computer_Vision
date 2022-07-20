@@ -3,7 +3,7 @@ import numpy as np
 import cvzone as cvz
 from cvzone.ColorModule import ColorFinder
 
-def start_game(Dark_B, Dark_G, Dark_R, Light_B, Light_G, Light_R):
+def start_game(Dark_B, Dark_G, Dark_R, Light_B, Light_G, Lights_R):
     cam = cv.VideoCapture(0)
     colorfinder = ColorFinder(True)
 
@@ -12,7 +12,7 @@ def start_game(Dark_B, Dark_G, Dark_R, Light_B, Light_G, Light_R):
 
         mask_red = cv.inRange(board, (0,0,50), (150,100,255))
         mask_post_it = cv.inRange(board, (Dark_B,Dark_G,Dark_R), (Light_B,Light_G,Light_R))
-        board_contours, contourFound = cvz.findContours(board, mask_post_it, 1000)
+        board_contours, contourFound = cvz.findContours(board, mask_post_it, 700)
 
         cv.imshow('video', board)
         cv.imshow('mask', mask_post_it)

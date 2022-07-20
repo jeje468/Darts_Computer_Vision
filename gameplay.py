@@ -2,49 +2,38 @@ from turtle import width
 import cv2 as cv
 import numpy as np
 import cvzone as cvz
-from cvzone.ColorModule import ColorFinder
 
-def get_board(img, points):
+def rescaleFrame(frame, scale=0.75):
+    width = int(frame.shape[1] * scale)
+    height = int(frame.shape[0] * scale)
+    dimensions = (width, height)
+
+    return cv.resize(frame, dimensions, interpolation=cv.INTER_AREA)
+
+def getBoard(img, points):
     width, height = int(451 * 1.5), int(451 * 1.5)
-    points1 = np.float32(points)
     points2 = np.float32([[0, height / 2,], [width, height / 2], [width / 2, 0], [width / 2, height]])
-    matrix = cv.getPerspectiveTransform(points1, points2)
+    matrix = cv.getPerspectiveTransform(points, points2)
     imgOutput = cv.warpPerspective(img, matrix, (width, height))
 
     return imgOutput
 
-def start_game(Dark_B, Dark_G, Dark_R, Light_B, Light_G, Light_R):
+def startGame(points):
     cam = cv.VideoCapture(0)
-    colorfinder = ColorFinder(True)
 
     while True:
         check, board = cam.read()
-
+        #board = rescaleFrame(board, 0.25)
         mask_red = cv.inRange(board, (0,0,50), (150,100,255))
-        mask_post_it = cv.inRange(board, (Dark_B,Dark_G,Dark_R), (Light_B,Light_G, Light_R))
-        board_contours, contourFound = cvz.findContours(board, mask_post_it, 700)
 
-        cv.imshow('video', board)
-        cv.imshow('mask', mask_post_it)
+        warpedBoard = getBoard(board, points)
 
+        #cv.line(board, points[0], points[1], [0, 255, 0], 2)
+        #cv.line(board, points[2], points[3], [0, 255, 0], 2)
 
-        if len(contourFound) >= 4:
-            left_center = contourFound[0]['center']
-            right_center = contourFound[3]['center']
-            top_center = contourFound[1]['center'] if contourFound[1]['center'][1] < contourFound[2]['center'][1] else contourFound[2]['center']
-            bottom_center = contourFound[1]['center'] if contourFound[1]['center'][1] > contourFound[2]['center'][1] else contourFound[2]['center']
-            
-            points = list()
-            points.append(left_center, right_center, top_center, bottom_center)
-
-            warpedBoard = get_board(board, points)
-
-            cv.line(board, left_center, right_center, [0, 255, 0], 2)
-            cv.line(board, top_center, bottom_center, [0, 255, 0], 2)
-
-            cv.imshow('Warped', warpedBoard)
+        cv.imshow('Warped', warpedBoard)
     
-        #cv.imshow('video', board)
+        cv.imshow('video', board)
 
         key = cv.waitKey(1)
         if key == 27:

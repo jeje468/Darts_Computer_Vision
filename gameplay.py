@@ -2,6 +2,7 @@ from turtle import width
 import cv2 as cv
 import numpy as np
 import cvzone as cvz
+from contour import *
 
 def rescaleFrame(frame, scale=0.75):
     width = int(frame.shape[1] * scale)
@@ -20,6 +21,8 @@ def getBoard(img, points):
 
 def startGame(points):
     cam = cv.VideoCapture(0)
+    countHit = 0
+    dartsDetectedList = []
 
     while True:
         check, board = cam.read()
@@ -31,8 +34,18 @@ def startGame(points):
         #cv.line(board, points[0], points[1], [0, 255, 0], 2)
         #cv.line(board, points[2], points[3], [0, 255, 0], 2)
 
-        cv.imshow('Warped', warpedBoard)
+        #cv.imshow('Warped', warpedBoard)
         cv.imshow('video', board)
+
+        original_board = cv.imread('Images/calibration.jpg')
+        mask, contourFound = retrieveDartContour(original_board, board)
+
+        if contourFound:
+            countHit += 1
+            if countHit == 5:
+                dartsDetectedList.append(mask)
+                countHit = 0
+                
 
         key = cv.waitKey(1)
         if key == 27:

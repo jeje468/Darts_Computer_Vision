@@ -1,18 +1,34 @@
 import cv2 as cv
+import cv2 as cv
 import numpy as np
+import cvzone as cvz
 
-def get_board(img, points):
-    width, height = int(451 * 1.5), int(451 * 1.5)
-    points1 = np.float32(points)
-    points2 = np.float32([[0, height / 2,], [width, height / 2], [width / 2, 0], [width / 2, height]])
-    matrix = cv.getPerspectiveTransform(points1, points2)
-    imgOutput = cv.warpPerspective(img, matrix, (width, height))
+original = cv.imread('Images/board_regular.JPG')
+new = cv.imread('Images/board_with_dart.JPG')
 
-    return imgOutput
+diff = original.copy()
+cv.absdiff(original, new, diff)
+gray = cv.cvtColor(diff, cv.COLOR_BGR2GRAY)
 
-img = cv.imread('Images/board.jpg')
-points = np.float32([[517, 2209],[2481, 2121],[1669, 1037],[1773, 3341]])
-warpedImage = get_board(img, points)
-cv.imshow('Warped', warpedImage)
+#cv.imshow('Difference', gray)
+
+
+
+(thresh, mask) = cv.threshold(gray, 128, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
+cv.imshow('Original ask', mask)
+
+kernel = np.ones((7,7), np.uint8)
+mask = cv.morphologyEx(mask, cv.MORPH_OPEN, kernel)
+mask = cv.medianBlur(mask, 9)
+mask = cv.dilate(mask, kernel, iterations=4)
+kernel = np.ones((9,9), np.uint8)
+mask = cv.morphologyEx(mask, cv.MORPH_CLOSE, kernel)
+cv.imshow('Mask', mask)
+
+
+board_contours, contourFound = cvz.findContours(new, mask, 1000)
+cv.imshow('Contours', board_contours)
+
 
 cv.waitKey(0)
+

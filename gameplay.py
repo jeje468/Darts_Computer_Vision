@@ -32,7 +32,6 @@ def startGame(points):
         #cv.line(board, points[2], points[3], [0, 255, 0], 2)
 
         cv.imshow('Warped', warpedBoard)
-    
         cv.imshow('video', board)
 
         key = cv.waitKey(1)
